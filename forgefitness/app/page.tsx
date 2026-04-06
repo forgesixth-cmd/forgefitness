@@ -12,7 +12,7 @@ const highlights = [
   {
     title: "Train with structure",
     description:
-      "Create focused workout plans with weekly goals, target muscle groups, and progressive sessions.",
+      "Create your focused workout plans with weekly goals, target muscle groups, and progressive sessions.",
     icon: Dumbbell,
   },
   {
