@@ -9,6 +9,48 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      body_checkins: {
+        Row: {
+          avg_sleep_hours: number | null;
+          body_fat_percentage: number | null;
+          checkin_date: string;
+          created_at: string;
+          id: string;
+          mood_score: number | null;
+          notes: string | null;
+          steps_average: number | null;
+          updated_at: string;
+          user_id: string;
+          weight_kg: number | null;
+        };
+        Insert: {
+          avg_sleep_hours?: number | null;
+          body_fat_percentage?: number | null;
+          checkin_date?: string;
+          created_at?: string;
+          id?: string;
+          mood_score?: number | null;
+          notes?: string | null;
+          steps_average?: number | null;
+          updated_at?: string;
+          user_id: string;
+          weight_kg?: number | null;
+        };
+        Update: {
+          avg_sleep_hours?: number | null;
+          body_fat_percentage?: number | null;
+          checkin_date?: string;
+          created_at?: string;
+          id?: string;
+          mood_score?: number | null;
+          notes?: string | null;
+          steps_average?: number | null;
+          updated_at?: string;
+          user_id?: string;
+          weight_kg?: number | null;
+        };
+        Relationships: [];
+      };
       exercise_logs: {
         Row: {
           created_at: string;
@@ -55,6 +97,75 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      habit_entries: {
+        Row: {
+          completed: boolean;
+          created_at: string;
+          entry_date: string;
+          habit_key: string;
+          id: string;
+          label: string;
+          notes: string | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          completed?: boolean;
+          created_at?: string;
+          entry_date?: string;
+          habit_key: string;
+          id?: string;
+          label: string;
+          notes?: string | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          completed?: boolean;
+          created_at?: string;
+          entry_date?: string;
+          habit_key?: string;
+          id?: string;
+          label?: string;
+          notes?: string | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      nutrition_targets: {
+        Row: {
+          calories: number | null;
+          carbs_grams: number | null;
+          created_at: string;
+          fats_grams: number | null;
+          hydration_liters: number | null;
+          protein_grams: number | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          calories?: number | null;
+          carbs_grams?: number | null;
+          created_at?: string;
+          fats_grams?: number | null;
+          hydration_liters?: number | null;
+          protein_grams?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          calories?: number | null;
+          carbs_grams?: number | null;
+          created_at?: string;
+          fats_grams?: number | null;
+          hydration_liters?: number | null;
+          protein_grams?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
       };
       profiles: {
         Row: {

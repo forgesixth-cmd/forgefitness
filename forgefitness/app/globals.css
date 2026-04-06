@@ -1,8 +1,20 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #070708;
+  --foreground: #ebe7df;
+  --forge-ink: #080808;
+  --forge-ink-2: #111116;
+  --forge-ink-3: #17171d;
+  --forge-red: #d10a26;
+  --forge-red-bright: #ff2040;
+  --forge-blue: #3a6aaa;
+  --forge-gold: #f0a020;
+  --forge-green: #14a040;
+  --forge-white: #f0ede4;
+  --forge-silver: #b0acaa;
+  --forge-dim: #585450;
+  --forge-border: #1d1d21;
 }
 
 * {
@@ -17,6 +29,9 @@ body {
   margin: 0;
   background: var(--background);
   color: var(--foreground);
+  background-image:
+    radial-gradient(circle at top, rgba(209, 10, 38, 0.08), transparent 30%),
+    linear-gradient(180deg, #080808 0%, #09090d 100%);
 }
 
 a {
@@ -32,4 +47,62 @@ textarea {
 
 textarea {
   resize: vertical;
+}
+
+::selection {
+  background: rgba(209, 10, 38, 0.3);
+  color: var(--forge-white);
+}
+
+.forge-title {
+  font-family: var(--font-archivo-black);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.forge-kicker {
+  font-family: var(--font-jetbrains-mono);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.forge-panel {
+  border: 2px solid var(--forge-border);
+  background: linear-gradient(180deg, rgba(17, 17, 22, 0.98), rgba(10, 10, 13, 0.98));
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.28);
+}
+
+.forge-input,
+.forge-select,
+.forge-textarea {
+  width: 100%;
+  border: 1px solid #26262d;
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--forge-white);
+  border-radius: 0;
+  padding: 0.9rem 1rem;
+  outline: none;
+}
+
+.forge-input::placeholder,
+.forge-textarea::placeholder {
+  color: #6d6870;
+}
+
+.forge-button {
+  border: 1px solid var(--forge-red);
+  background: var(--forge-red);
+  color: var(--forge-white);
+  font-family: var(--font-archivo-black);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.forge-button-secondary {
+  border: 1px solid #292930;
+  background: transparent;
+  color: var(--forge-white);
+  font-family: var(--font-archivo-black);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }

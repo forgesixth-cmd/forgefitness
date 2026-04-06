@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Archivo_Black, Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const archiveBlack = Archivo_Black({
+  variable: "--font-archivo-black",
+  weight: "400",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const instrumentSans = Instrument_Sans({
+  variable: "--font-instrument-sans",
+  subsets: ["latin"],
+});
+
+const jetBrainsMono = JetBrains_Mono({
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "ForgeFitness",
+  title: "FORGEFITNESS",
   description:
-    "ForgeFitness helps users manage workout plans, log sessions, and track meaningful progress.",
+    "FORGEFITNESS is a high-discipline training workspace for body metrics, habits, nutrition, programming, and gym performance.",
 };
 
 export default function RootLayout({
@@ -26,9 +32,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${archiveBlack.variable} ${instrumentSans.variable} ${jetBrainsMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full bg-white font-sans text-slate-950">
+      <body className="min-h-full bg-[var(--forge-ink)] font-[family-name:var(--font-instrument-sans)] text-[var(--forge-silver)]">
         {children}
       </body>
     </html>

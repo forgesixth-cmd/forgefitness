@@ -1,5 +1,5 @@
-import { DashboardClient } from "@/components/app/dashboard-client";
+import { OverviewClient } from "@/components/forge/overview-client";
 
 export default function DashboardPage() {
-  return <DashboardClient />;
+  return <OverviewClient />;
 }
