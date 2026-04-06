@@ -42,6 +42,9 @@ npm run dev
 
 Open `http://localhost:3000` to view the app.
 
+In production, this app is configured to run under the `/forgefitness`
+subpath, so deployed routes will look like `/forgefitness/auth/sign-up`.
+
 ## App Routes
 
 - `/` marketing landing page
