@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## ForgeFitness
+
+ForgeFitness is a Next.js app scaffold for:
+
+- authentication
+- user profiles
+- workout plans
+- workout logging
+- progress dashboard
+
+The current build includes a product shell and mock-backed routes so we can
+iterate on UX and architecture before wiring full persistence.
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies if needed:
+
+```bash
+npm install
+```
+
+2. Add environment variables:
+
+```bash
+cp .env.example .env.local
+```
+
+3. Fill in:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+```
+
+4. In your Supabase project, run the SQL in [supabase/migrations/20260406_initial_schema.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_initial_schema.sql) using the SQL editor.
+
+5. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open `http://localhost:3000` to view the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## App Routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `/` marketing landing page
+- `/dashboard` dashboard overview
+- `/plans` workout plans
+- `/log` workout logging
+- `/profile` user profile
+- `/auth/sign-in` sign-in screen
+- `/auth/sign-up` sign-up screen
 
-## Learn More
+## Next Build Steps
 
-To learn more about Next.js, take a look at the following resources:
+1. Create Supabase tables for `profiles`, `workout_plans`, `workout_sessions`, and `exercise_logs`
+2. Connect auth forms to Supabase Auth
+3. Replace mock dashboard/profile/workout data in `lib/mock-data.ts` with live queries
+4. Add onboarding after sign-up for weekly availability and preferences
+5. Add create/edit plan flows and log submission handlers
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+`lib/supabase.ts` includes the typed browser client helper and throws a clear
+error if the public keys are missing.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The private app shell currently uses a client-side auth gate. That keeps the
+flow simple for the first integration pass, and we can move to server-side
+session handling once we add SSR helpers and production auth hardening.
