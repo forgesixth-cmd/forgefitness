@@ -121,16 +121,52 @@ export async function POST(request: Request) {
 
     const result = (await response.json()) as {
       output_text?: string;
+      output?: Array<{
+        content?: Array<{
+          type?: string;
+          text?: string;
+          parsed?: unknown;
+          refusal?: string;
+        }>;
+      }>;
     };
 
-    if (!result.output_text) {
-      return NextResponse.json(
-        { error: "OpenAI did not return structured output." },
-        { status: 500 },
-      );
+    const outputTextCandidate =
+      result.output_text ||
+      result.output
+        ?.flatMap((item) => item.content ?? [])
+        .find((content) => content.type === "output_text" && content.text)
+        ?.text ||
+      result.output
+        ?.flatMap((item) => item.content ?? [])
+        .find((content) => typeof content.text === "string")
+        ?.text;
+
+    const parsedCandidate = result.output
+      ?.flatMap((item) => item.content ?? [])
+      .find((content) => content.parsed)?.parsed;
+
+    if (parsedCandidate && typeof parsedCandidate === "object") {
+      return NextResponse.json(parsedCandidate);
     }
 
-    return NextResponse.json(JSON.parse(result.output_text));
+    if (outputTextCandidate) {
+      return NextResponse.json(JSON.parse(outputTextCandidate));
+    }
+
+    const refusal = result.output
+      ?.flatMap((item) => item.content ?? [])
+      .find((content) => content.refusal)?.refusal;
+
+    return NextResponse.json(
+      {
+        error: refusal
+          ? `OpenAI refused the request: ${refusal}`
+          : "OpenAI did not return structured output.",
+        debug: JSON.stringify(result).slice(0, 1200),
+      },
+      { status: 500 },
+    );
   } catch (error) {
     return NextResponse.json(
       {
