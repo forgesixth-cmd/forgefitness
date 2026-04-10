@@ -134,6 +134,54 @@ export type Database = {
         };
         Relationships: [];
       };
+      nutrition_meals: {
+        Row: {
+          ai_summary: string | null;
+          analysis_json: Json | null;
+          calories: number | null;
+          carbs_grams: number | null;
+          created_at: string;
+          fats_grams: number | null;
+          id: string;
+          logged_at: string;
+          meal_description: string;
+          meal_type: string;
+          protein_grams: number | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          ai_summary?: string | null;
+          analysis_json?: Json | null;
+          calories?: number | null;
+          carbs_grams?: number | null;
+          created_at?: string;
+          fats_grams?: number | null;
+          id?: string;
+          logged_at?: string;
+          meal_description: string;
+          meal_type: string;
+          protein_grams?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          ai_summary?: string | null;
+          analysis_json?: Json | null;
+          calories?: number | null;
+          carbs_grams?: number | null;
+          created_at?: string;
+          fats_grams?: number | null;
+          id?: string;
+          logged_at?: string;
+          meal_description?: string;
+          meal_type?: string;
+          protein_grams?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       nutrition_targets: {
         Row: {
           calories: number | null;
