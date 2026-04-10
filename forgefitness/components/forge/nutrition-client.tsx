@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BASE_PATH } from "@/lib/base-path";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type MealType = "Breakfast" | "Lunch" | "Snacks" | "Dinner";
@@ -115,7 +116,7 @@ export function NutritionClient() {
         throw new Error("Enter a meal before analyzing it.");
       }
 
-      const response = await fetch("/api/nutrition/analyze", {
+      const response = await fetch(`${BASE_PATH}/api/nutrition/analyze`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,7 +127,18 @@ export function NutritionClient() {
         }),
       });
 
-      const result = (await response.json()) as MealAnalysis & { error?: string };
+      const rawText = await response.text();
+      let result: (MealAnalysis & { error?: string }) | null = null;
+
+      try {
+        result = JSON.parse(rawText) as MealAnalysis & { error?: string };
+      } catch {
+        throw new Error(
+          response.ok
+            ? "The analyze route returned an invalid response."
+            : `Analyze request failed with a non-JSON response: ${rawText.slice(0, 120)}`,
+        );
+      }
 
       if (!response.ok) {
         throw new Error(result.error || "Unable to analyze meal.");
