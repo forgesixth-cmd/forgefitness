@@ -74,3 +74,71 @@ flow simple for the first integration pass, and we can move to server-side
 session handling once we add SSR helpers and production auth hardening.
 
 Apple Watch syncing is not possible directly from a web page. The current repo is now ready to receive Apple Health data in Supabase, but the final bridge still needs a small iPhone app or native wrapper that reads HealthKit and writes the synced records.
+
+## Apple Health Sync Contract
+
+The repo now exposes a protected sync endpoint for the future iPhone companion app:
+
+- `POST /forgefitness/api/apple-health/sync`
+
+Authentication:
+
+- Send the signed-in user's Supabase access token in the `Authorization` header
+- Format: `Authorization: Bearer <supabase_access_token>`
+
+Server requirements:
+
+- Set `SUPABASE_SERVICE_ROLE_KEY` in local and Vercel env vars
+
+Payload shape:
+
+```json
+{
+  "source": "apple_health",
+  "syncStartedAt": "2026-04-10T07:30:00.000Z",
+  "dailyMetrics": [
+    {
+      "entryDate": "2026-04-10",
+      "activeEnergyBurnedKcal": 540,
+      "restingEnergyBurnedKcal": 1710,
+      "exerciseMinutes": 42,
+      "standHours": 11,
+      "stepCount": 9342,
+      "distanceKm": 6.4,
+      "sleepHours": 7.3
+    }
+  ],
+  "workouts": [
+    {
+      "workoutExternalId": "apple-workout-123",
+      "workoutType": "Traditional Strength Training",
+      "source": "apple_watch",
+      "startedAt": "2026-04-10T05:45:00.000Z",
+      "endedAt": "2026-04-10T06:32:00.000Z",
+      "durationMinutes": 47,
+      "activeEnergyBurnedKcal": 312,
+      "totalEnergyBurnedKcal": 360,
+      "avgHeartRateBpm": 128
+    }
+  ],
+  "sleepSessions": [
+    {
+      "source": "apple_watch",
+      "startedAt": "2026-04-09T17:40:00.000Z",
+      "endedAt": "2026-04-10T01:02:00.000Z",
+      "durationHours": 7.4,
+      "sleepStage": "asleep"
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "recordsImported": 3,
+  "syncId": "uuid"
+}
+```
