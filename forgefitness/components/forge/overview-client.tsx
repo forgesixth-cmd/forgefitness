@@ -104,35 +104,39 @@ function clampPercent(value: number) {
 
 function Ring({ label, target, consumed, color, size, stroke }: RingMetric) {
   const pct = target > 0 ? clampPercent((consumed / target) * 100) : 0;
-  const innerSize = size - stroke * 2;
+  const radius = (size - stroke) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const dashOffset = circumference - (pct / 100) * circumference;
 
   return (
-    <div
-      className="absolute grid place-items-center rounded-full"
-      style={{
-        width: size,
-        height: size,
-        background: `conic-gradient(${color} 0deg ${pct * 3.6}deg, rgba(255,255,255,0.05) ${pct * 3.6}deg 360deg)`,
-        padding: stroke,
-      }}
+    <svg
+      aria-label={label}
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+      height={size}
+      viewBox={`0 0 ${size} ${size}`}
+      width={size}
     >
-      <div
-        className="grid place-items-center rounded-full bg-[var(--forge-ink-2)]"
-        style={{ width: innerSize, height: innerSize }}
-      >
-        <div className="text-center">
-          <div className="forge-kicker text-[8px] text-[var(--forge-dim)]">
-            {label}
-          </div>
-          <div className="mt-2 text-sm font-semibold text-[var(--forge-white)]">
-            {Math.round(consumed)}
-          </div>
-          <div className="text-[10px] text-[var(--forge-silver)]">
-            / {Math.round(target)}
-          </div>
-        </div>
-      </div>
-    </div>
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        fill="none"
+        r={radius}
+        stroke="rgba(255,255,255,0.06)"
+        strokeWidth={stroke}
+      />
+      <circle
+        cx={size / 2}
+        cy={size / 2}
+        fill="none"
+        r={radius}
+        stroke={color}
+        strokeDasharray={circumference}
+        strokeDashoffset={dashOffset}
+        strokeLinecap="round"
+        strokeWidth={stroke}
+        style={{ transform: "rotate(-90deg)", transformOrigin: "50% 50%" }}
+      />
+    </svg>
   );
 }
 
@@ -191,7 +195,7 @@ export function OverviewClient() {
             .limit(90),
           supabase
             .from("profiles")
-            .select("primary_goal, target_weight_kg, current_weight_kg, target_days, daily_calorie_target, daily_carbs_grams, daily_fats_grams, daily_protein_grams, daily_calories_to_burn, target_strategy_summary, height_cm")
+            .select("primary_goal, target_weight_kg, current_weight_kg, target_days, daily_calorie_target, daily_carbs_grams, daily_fats_grams, daily_protein_grams, daily_calories_to_burn, target_strategy_summary, height_cm, estimated_body_fat_percentage")
             .eq("id", user.id)
             .maybeSingle(),
           supabase
@@ -240,6 +244,7 @@ export function OverviewClient() {
               carbs_grams: number;
               fats_grams: number;
               daily_calories_to_burn: number;
+              estimated_body_fat_percentage: number;
             };
 
             await supabase.from("profiles").upsert({
@@ -249,6 +254,7 @@ export function OverviewClient() {
               daily_carbs_grams: recommendation.carbs_grams,
               daily_fats_grams: recommendation.fats_grams,
               daily_calories_to_burn: recommendation.daily_calories_to_burn,
+              estimated_body_fat_percentage: recommendation.estimated_body_fat_percentage,
               target_strategy_summary: recommendation.summary,
               last_recommendation_at: new Date().toISOString(),
             });
@@ -258,6 +264,8 @@ export function OverviewClient() {
             profileData.daily_carbs_grams = recommendation.carbs_grams;
             profileData.daily_fats_grams = recommendation.fats_grams;
             profileData.daily_calories_to_burn = recommendation.daily_calories_to_burn;
+            profileData.estimated_body_fat_percentage =
+              recommendation.estimated_body_fat_percentage;
             profileData.target_strategy_summary = recommendation.summary;
           }
         }
@@ -409,7 +417,9 @@ export function OverviewClient() {
               latestCheckin?.body_fat_percentage !== null &&
               latestCheckin?.body_fat_percentage !== undefined
                 ? `${Number(latestCheckin.body_fat_percentage).toFixed(1)}%`
-                : "--",
+                : profileData?.estimated_body_fat_percentage
+                  ? `${Number(profileData.estimated_body_fat_percentage).toFixed(1)}%`
+                  : "--",
             avgSleep:
               latestCheckin?.avg_sleep_hours !== null &&
               latestCheckin?.avg_sleep_hours !== undefined
@@ -556,61 +566,72 @@ export function OverviewClient() {
           </div>
         </div>
         <div className="grid gap-8 px-6 py-8 lg:grid-cols-[0.9fr_1.1fr]">
-          <div className="relative mx-auto h-[320px] w-[320px]">
+          <div className="mx-auto flex w-full max-w-[420px] items-center justify-center">
+            <div className="relative h-[360px] w-[360px]">
+              <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.03)_0,rgba(255,255,255,0.01)_38%,transparent_70%)]" />
+              <div className="absolute inset-[18px] rounded-full border border-[rgba(255,255,255,0.04)]" />
             <Ring
               label="Calories"
               target={state.caloriesTarget}
               consumed={state.caloriesToday}
               color="var(--forge-red)"
-              size={320}
-              stroke={28}
+              size={360}
+              stroke={24}
             />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <Ring
                 label="Carbs"
                 target={state.carbsTarget}
                 consumed={state.carbsToday}
                 color="var(--forge-blue)"
-                size={250}
-                stroke={22}
+                size={280}
+                stroke={20}
               />
-            </div>
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <Ring
                 label="Fats"
                 target={state.fatsTarget}
                 consumed={state.fatsToday}
                 color="var(--forge-gold)"
-                size={182}
+                size={214}
                 stroke={18}
               />
-            </div>
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
               <Ring
                 label="Protein"
                 target={state.proteinTarget}
                 consumed={state.proteinToday}
                 color="var(--forge-green)"
-                size={124}
-                stroke={14}
+                size={152}
+                stroke={16}
               />
+              <div className="absolute inset-[116px] flex flex-col items-center justify-center rounded-full border border-[var(--forge-border)] bg-[rgba(7,7,12,0.92)] text-center shadow-[0_0_40px_rgba(0,0,0,0.35)]">
+                <div className="forge-kicker text-[8px] text-[var(--forge-dim)]">
+                  Daily intake
+                </div>
+                <div className="mt-3 text-4xl font-[family-name:var(--font-archivo-black)] text-[var(--forge-white)]">
+                  {Math.round(state.caloriesToday)}
+                </div>
+                <div className="text-xs text-[var(--forge-silver)]">
+                  of {Math.round(state.caloriesTarget)} kcal
+                </div>
+                <div className="mt-4 forge-kicker text-[8px] text-[var(--forge-green)]">
+                  {Math.round(state.exerciseBurnToday)} burned today
+                </div>
+              </div>
             </div>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
             {[
-              ["Calories target", `${Math.round(state.caloriesTarget)}`],
-              ["Calories left", `${Math.round(state.caloriesLeft)}`],
-              ["Exercise burn", `${Math.round(state.exerciseBurnToday)}`],
-              ["Burn target", `${Math.round(state.exerciseBurnTarget)}`],
-              ["Protein consumed", `${Math.round(state.proteinToday)} g`],
-              ["Carbs consumed", `${Math.round(state.carbsToday)} g`],
-              ["Fats consumed", `${Math.round(state.fatsToday)} g`],
-              ["Total lost", state.totalLost],
-            ].map(([label, value]) => (
+              ["Calories left", `${Math.round(state.caloriesLeft)} kcal`, "var(--forge-red)"],
+              ["Exercise burn", `${Math.round(state.exerciseBurnToday)} / ${Math.round(state.exerciseBurnTarget)} kcal`, "var(--forge-green)"],
+              ["Carbs", `${Math.round(state.carbsToday)} / ${Math.round(state.carbsTarget)} g`, "var(--forge-blue)"],
+              ["Fats", `${Math.round(state.fatsToday)} / ${Math.round(state.fatsTarget)} g`, "var(--forge-gold)"],
+              ["Protein", `${Math.round(state.proteinToday)} / ${Math.round(state.proteinTarget)} g`, "var(--forge-green)"],
+              ["Total lost", state.totalLost, "var(--forge-red)"],
+            ].map(([label, value, accent]) => (
               <div
                 key={label}
                 className="border border-[var(--forge-border)] bg-[rgba(255,255,255,0.02)] px-5 py-5"
+                style={{ boxShadow: `inset 3px 0 0 ${accent}` }}
               >
                 <div className="forge-kicker text-[9px] text-[var(--forge-dim)]">
                   {label}
@@ -618,6 +639,47 @@ export function OverviewClient() {
                 <div className="mt-3 text-3xl font-[family-name:var(--font-archivo-black)] text-[var(--forge-white)]">
                   {value}
                 </div>
+                {label !== "Total lost" ? (
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-[rgba(255,255,255,0.06)]">
+                    <div
+                      className="h-full rounded-full"
+                      style={{
+                        width: `${
+                          label === "Calories left"
+                            ? clampPercent(
+                                state.caloriesTarget > 0
+                                  ? (state.caloriesToday / state.caloriesTarget) * 100
+                                  : 0,
+                              )
+                            : label === "Exercise burn"
+                              ? clampPercent(
+                                  state.exerciseBurnTarget > 0
+                                    ? (state.exerciseBurnToday / state.exerciseBurnTarget) * 100
+                                    : 0,
+                                )
+                              : label === "Carbs"
+                                ? clampPercent(
+                                    state.carbsTarget > 0
+                                      ? (state.carbsToday / state.carbsTarget) * 100
+                                      : 0,
+                                  )
+                                : label === "Fats"
+                                  ? clampPercent(
+                                      state.fatsTarget > 0
+                                        ? (state.fatsToday / state.fatsTarget) * 100
+                                        : 0,
+                                    )
+                                  : clampPercent(
+                                      state.proteinTarget > 0
+                                        ? (state.proteinToday / state.proteinTarget) * 100
+                                        : 0,
+                                    )
+                        }%`,
+                        background: accent,
+                      }}
+                    />
+                  </div>
+                ) : null}
               </div>
             ))}
           </div>

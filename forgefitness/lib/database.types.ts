@@ -226,6 +226,7 @@ export type Database = {
           daily_fats_grams: number | null;
           daily_protein_grams: number | null;
           display_name: string | null;
+          estimated_body_fat_percentage: number | null;
           experience_level: string | null;
           height_cm: number | null;
           id: string;
@@ -247,6 +248,7 @@ export type Database = {
           daily_fats_grams?: number | null;
           daily_protein_grams?: number | null;
           display_name?: string | null;
+          estimated_body_fat_percentage?: number | null;
           experience_level?: string | null;
           height_cm?: number | null;
           id: string;
@@ -268,6 +270,7 @@ export type Database = {
           daily_fats_grams?: number | null;
           daily_protein_grams?: number | null;
           display_name?: string | null;
+          estimated_body_fat_percentage?: number | null;
           experience_level?: string | null;
           height_cm?: number | null;
           id?: string;

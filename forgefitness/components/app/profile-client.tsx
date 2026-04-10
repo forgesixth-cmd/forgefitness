@@ -20,6 +20,7 @@ type ProfileState = {
   dailyProtein: string;
   dailyCarbs: string;
   dailyFats: string;
+  estimatedBodyFat: string;
   strategySummary: string;
   initials: string;
 };
@@ -63,7 +64,7 @@ export function ProfileClient() {
 
       const { data, error: profileError } = await supabase
         .from("profiles")
-        .select("id, display_name, primary_goal, experience_level, weekly_availability, height_cm, current_weight_kg, target_weight_kg, target_days, daily_calorie_target, daily_calories_to_burn, daily_protein_grams, daily_carbs_grams, daily_fats_grams, target_strategy_summary")
+        .select("id, display_name, primary_goal, experience_level, weekly_availability, height_cm, current_weight_kg, target_weight_kg, target_days, daily_calorie_target, daily_calories_to_burn, daily_protein_grams, daily_carbs_grams, daily_fats_grams, estimated_body_fat_percentage, target_strategy_summary")
         .eq("id", user.id)
         .maybeSingle();
 
@@ -98,6 +99,9 @@ export function ProfileClient() {
         dailyProtein: data?.daily_protein_grams ? String(data.daily_protein_grams) : "",
         dailyCarbs: data?.daily_carbs_grams ? String(data.daily_carbs_grams) : "",
         dailyFats: data?.daily_fats_grams ? String(data.daily_fats_grams) : "",
+        estimatedBodyFat: data?.estimated_body_fat_percentage
+          ? String(data.estimated_body_fat_percentage)
+          : "",
         strategySummary: data?.target_strategy_summary || "",
         initials: toInitials(displayName, user.email ?? "FF"),
       });
@@ -138,6 +142,7 @@ export function ProfileClient() {
       carbs_grams: number;
       fats_grams: number;
       daily_calories_to_burn: number;
+      estimated_body_fat_percentage: number;
     };
 
     if (!response.ok) {
@@ -187,6 +192,7 @@ export function ProfileClient() {
         daily_protein_grams: recommendation?.protein_grams ?? null,
         daily_carbs_grams: recommendation?.carbs_grams ?? null,
         daily_fats_grams: recommendation?.fats_grams ?? null,
+        estimated_body_fat_percentage: recommendation?.estimated_body_fat_percentage ?? null,
         target_strategy_summary: recommendation?.summary ?? null,
         last_recommendation_at: recommendation ? new Date().toISOString() : null,
       });
@@ -202,6 +208,9 @@ export function ProfileClient() {
               dailyProtein: recommendation ? String(recommendation.protein_grams) : current.dailyProtein,
               dailyCarbs: recommendation ? String(recommendation.carbs_grams) : current.dailyCarbs,
               dailyFats: recommendation ? String(recommendation.fats_grams) : current.dailyFats,
+              estimatedBodyFat: recommendation
+                ? String(recommendation.estimated_body_fat_percentage)
+                : current.estimatedBodyFat,
               strategySummary: recommendation?.summary ?? current.strategySummary,
               initials: toInitials(current.displayName, current.email),
             }
@@ -245,6 +254,7 @@ export function ProfileClient() {
         : "Not set",
     },
     { label: "Target weight", value: profile.targetWeightKg ? `${profile.targetWeightKg} kg` : "Not set" },
+    { label: "Estimated body fat", value: profile.estimatedBodyFat ? `${profile.estimatedBodyFat}%` : "Pending AI estimate" },
   ];
 
   return (
@@ -420,6 +430,9 @@ export function ProfileClient() {
               </p>
               <p className="text-sm text-slate-300 sm:col-span-2">
                 Fats: <span className="font-semibold text-white">{profile.dailyFats || "--"} g</span>
+              </p>
+              <p className="text-sm text-slate-300 sm:col-span-2">
+                Estimated body fat: <span className="font-semibold text-white">{profile.estimatedBodyFat || "--"}%</span>
               </p>
             </div>
             {profile.strategySummary ? (

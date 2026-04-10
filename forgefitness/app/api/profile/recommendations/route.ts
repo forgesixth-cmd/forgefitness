@@ -12,6 +12,7 @@ const recommendationSchema = {
     carbs_grams: { type: "number" },
     fats_grams: { type: "number" },
     daily_calories_to_burn: { type: "number" },
+    estimated_body_fat_percentage: { type: "number" },
   },
   required: [
     "summary",
@@ -20,6 +21,7 @@ const recommendationSchema = {
     "carbs_grams",
     "fats_grams",
     "daily_calories_to_burn",
+    "estimated_body_fat_percentage",
   ],
 } as const;
 
@@ -101,7 +103,7 @@ export async function POST(request: Request) {
               {
                 type: "input_text",
                 text:
-                  "You are a fitness nutrition coach. Recommend a sensible daily calorie target, daily calories to burn with exercise, and macro split for healthy weight loss. Be realistic and safe. Return only structured JSON.",
+                  "You are a fitness nutrition coach. Recommend a sensible daily calorie target, daily calories to burn with exercise, and macro split for healthy weight loss. Also estimate body fat percentage from the provided height and weights only, clearly treating it as a rough estimate rather than a clinical measurement. Be realistic and safe. Return only structured JSON.",
               },
             ],
           },

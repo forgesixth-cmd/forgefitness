@@ -151,6 +151,7 @@ export function AuthForm({ mode }: AuthFormProps) {
               carbs_grams: number;
               fats_grams: number;
               daily_calories_to_burn: number;
+              estimated_body_fat_percentage: number;
             };
 
             if (userId) {
@@ -168,6 +169,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                 daily_carbs_grams: recommendation.carbs_grams,
                 daily_fats_grams: recommendation.fats_grams,
                 daily_calories_to_burn: recommendation.daily_calories_to_burn,
+                estimated_body_fat_percentage: recommendation.estimated_body_fat_percentage,
                 target_strategy_summary: recommendation.summary,
                 last_recommendation_at: new Date().toISOString(),
               });
