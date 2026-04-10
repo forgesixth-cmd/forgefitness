@@ -9,6 +9,186 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      apple_health_daily_metrics: {
+        Row: {
+          active_energy_burned_kcal: number | null;
+          created_at: string;
+          distance_km: number | null;
+          entry_date: string;
+          exercise_minutes: number | null;
+          id: string;
+          resting_energy_burned_kcal: number | null;
+          sleep_hours: number | null;
+          source_payload: Json | null;
+          stand_hours: number | null;
+          step_count: number | null;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          active_energy_burned_kcal?: number | null;
+          created_at?: string;
+          distance_km?: number | null;
+          entry_date: string;
+          exercise_minutes?: number | null;
+          id?: string;
+          resting_energy_burned_kcal?: number | null;
+          sleep_hours?: number | null;
+          source_payload?: Json | null;
+          stand_hours?: number | null;
+          step_count?: number | null;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          active_energy_burned_kcal?: number | null;
+          created_at?: string;
+          distance_km?: number | null;
+          entry_date?: string;
+          exercise_minutes?: number | null;
+          id?: string;
+          resting_energy_burned_kcal?: number | null;
+          sleep_hours?: number | null;
+          source_payload?: Json | null;
+          stand_hours?: number | null;
+          step_count?: number | null;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      apple_health_sleep_sessions: {
+        Row: {
+          created_at: string;
+          duration_hours: number | null;
+          ended_at: string;
+          id: string;
+          sleep_stage: string | null;
+          source: string;
+          source_payload: Json | null;
+          started_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          duration_hours?: number | null;
+          ended_at: string;
+          id?: string;
+          sleep_stage?: string | null;
+          source?: string;
+          source_payload?: Json | null;
+          started_at: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          duration_hours?: number | null;
+          ended_at?: string;
+          id?: string;
+          sleep_stage?: string | null;
+          source?: string;
+          source_payload?: Json | null;
+          started_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      apple_health_syncs: {
+        Row: {
+          created_at: string;
+          error_message: string | null;
+          id: string;
+          records_imported: number;
+          source: string;
+          status: string;
+          sync_completed_at: string | null;
+          sync_started_at: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          records_imported?: number;
+          source?: string;
+          status?: string;
+          sync_completed_at?: string | null;
+          sync_started_at?: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          error_message?: string | null;
+          id?: string;
+          records_imported?: number;
+          source?: string;
+          status?: string;
+          sync_completed_at?: string | null;
+          sync_started_at?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      apple_health_workouts: {
+        Row: {
+          active_energy_burned_kcal: number | null;
+          avg_heart_rate_bpm: number | null;
+          created_at: string;
+          distance_km: number | null;
+          duration_minutes: number | null;
+          ended_at: string | null;
+          id: string;
+          source: string;
+          source_payload: Json | null;
+          started_at: string;
+          total_energy_burned_kcal: number | null;
+          updated_at: string;
+          user_id: string;
+          workout_external_id: string | null;
+          workout_type: string;
+        };
+        Insert: {
+          active_energy_burned_kcal?: number | null;
+          avg_heart_rate_bpm?: number | null;
+          created_at?: string;
+          distance_km?: number | null;
+          duration_minutes?: number | null;
+          ended_at?: string | null;
+          id?: string;
+          source?: string;
+          source_payload?: Json | null;
+          started_at: string;
+          total_energy_burned_kcal?: number | null;
+          updated_at?: string;
+          user_id: string;
+          workout_external_id?: string | null;
+          workout_type: string;
+        };
+        Update: {
+          active_energy_burned_kcal?: number | null;
+          avg_heart_rate_bpm?: number | null;
+          created_at?: string;
+          distance_km?: number | null;
+          duration_minutes?: number | null;
+          ended_at?: string | null;
+          id?: string;
+          source?: string;
+          source_payload?: Json | null;
+          started_at?: string;
+          total_energy_burned_kcal?: number | null;
+          updated_at?: string;
+          user_id?: string;
+          workout_external_id?: string | null;
+          workout_type?: string;
+        };
+        Relationships: [];
+      };
       body_checkins: {
         Row: {
           avg_sleep_hours: number | null;

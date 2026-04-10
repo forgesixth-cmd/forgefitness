@@ -30,6 +30,7 @@ type OverviewState = {
   avgSleep: string;
   totalLost: string;
   heightCm: string;
+  appleHealthStatus: string;
   caloriesToday: number;
   caloriesTarget: number;
   caloriesLeft: number;
@@ -174,6 +175,9 @@ export function OverviewClient() {
           { data: sessions, error: sessionsError },
           { data: profile, error: profileError },
           { data: meals, error: mealsError },
+          { data: appleDailyMetrics, error: appleDailyMetricsError },
+          { data: appleSleepSessions, error: appleSleepError },
+          { data: appleSyncs, error: appleSyncsError },
         ] = await Promise.all([
           supabase
             .from("body_checkins")
@@ -204,6 +208,24 @@ export function OverviewClient() {
             .eq("user_id", user.id)
             .order("logged_at", { ascending: false })
             .limit(60),
+          supabase
+            .from("apple_health_daily_metrics")
+            .select("entry_date, active_energy_burned_kcal, sleep_hours, step_count")
+            .eq("user_id", user.id)
+            .order("entry_date", { ascending: false })
+            .limit(30),
+          supabase
+            .from("apple_health_sleep_sessions")
+            .select("started_at, ended_at, duration_hours")
+            .eq("user_id", user.id)
+            .order("started_at", { ascending: false })
+            .limit(14),
+          supabase
+            .from("apple_health_syncs")
+            .select("status, sync_completed_at, source, records_imported")
+            .eq("user_id", user.id)
+            .order("sync_started_at", { ascending: false })
+            .limit(1),
         ]);
 
         if (checkinsError && checkinsError.code !== "PGRST205") throw checkinsError;
@@ -211,6 +233,9 @@ export function OverviewClient() {
         if (sessionsError) throw sessionsError;
         if (profileError) throw profileError;
         if (mealsError && mealsError.code !== "PGRST205") throw mealsError;
+        if (appleDailyMetricsError && appleDailyMetricsError.code !== "PGRST205") throw appleDailyMetricsError;
+        if (appleSleepError && appleSleepError.code !== "PGRST205") throw appleSleepError;
+        if (appleSyncsError && appleSyncsError.code !== "PGRST205") throw appleSyncsError;
 
         const profileData = profile ?? null;
 
@@ -305,14 +330,24 @@ export function OverviewClient() {
         );
 
         const allSessions = sessions ?? [];
+        const allAppleDailyMetrics = appleDailyMetrics ?? [];
+        const latestAppleSleep = (appleSleepSessions ?? [])[0];
+        const latestAppleSync = (appleSyncs ?? [])[0];
+        const todayKey = todayStart.toISOString().slice(0, 10);
+        const todayAppleMetrics = allAppleDailyMetrics.find(
+          (entry) => entry.entry_date === todayKey,
+        );
         const todaySessions = allSessions.filter(
           (session) => session.completed_at && new Date(session.completed_at) >= todayStart,
         );
-        const exerciseBurnToday = todaySessions.reduce(
+        const manualExerciseBurnToday = todaySessions.reduce(
           (sum, session) =>
             sum + estimateExerciseBurn(session.duration_minutes, session.effort_score),
           0,
         );
+        const exerciseBurnToday = todayAppleMetrics?.active_energy_burned_kcal
+          ? Number(todayAppleMetrics.active_energy_burned_kcal)
+          : manualExerciseBurnToday;
 
         const habitSummary = [
           {
@@ -335,11 +370,16 @@ export function OverviewClient() {
           return date;
         });
 
+        const appleDailyMetricsByDate = new Map(
+          allAppleDailyMetrics.map((entry) => [entry.entry_date, entry]),
+        );
+
         const dailySeries = labels.map((date) => {
           const dayStart = new Date(date);
           dayStart.setHours(0, 0, 0, 0);
           const nextDay = new Date(dayStart);
           nextDay.setDate(dayStart.getDate() + 1);
+          const dateKey = dayStart.toISOString().slice(0, 10);
 
           const mealsForDay = allMeals.filter((meal) => {
             const loggedAt = new Date(meal.logged_at);
@@ -356,11 +396,13 @@ export function OverviewClient() {
             label: formatShortDate(dayStart.toISOString()),
             caloriesIn: mealsForDay.reduce((sum, meal) => sum + Number(meal.calories ?? 0), 0),
             caloriesTarget: Number(profileData?.daily_calorie_target ?? 0),
-            burn: sessionsForDay.reduce(
-              (sum, session) =>
-                sum + estimateExerciseBurn(session.duration_minutes, session.effort_score),
-              0,
-            ),
+            burn: appleDailyMetricsByDate.get(dateKey)?.active_energy_burned_kcal
+              ? Number(appleDailyMetricsByDate.get(dateKey)?.active_energy_burned_kcal ?? 0)
+              : sessionsForDay.reduce(
+                  (sum, session) =>
+                    sum + estimateExerciseBurn(session.duration_minutes, session.effort_score),
+                  0,
+                ),
             burnTarget: Number(profileData?.daily_calories_to_burn ?? 0),
           };
         });
@@ -424,9 +466,18 @@ export function OverviewClient() {
               latestCheckin?.avg_sleep_hours !== null &&
               latestCheckin?.avg_sleep_hours !== undefined
                 ? `${Number(latestCheckin.avg_sleep_hours).toFixed(1)}h`
+                : latestAppleSleep?.duration_hours
+                  ? `${Number(latestAppleSleep.duration_hours).toFixed(1)}h`
+                  : todayAppleMetrics?.sleep_hours
+                    ? `${Number(todayAppleMetrics.sleep_hours).toFixed(1)}h`
                 : "--",
             totalLost: `${totalLost}kg`,
             heightCm: profileData?.height_cm ? `${Number(profileData.height_cm).toFixed(0)} cm` : "--",
+            appleHealthStatus: latestAppleSync?.sync_completed_at
+              ? `Synced ${formatShortDate(latestAppleSync.sync_completed_at)}`
+              : latestAppleSync?.status
+                ? latestAppleSync.status
+                : "Not connected",
             caloriesToday,
             caloriesTarget: Number(profileData?.daily_calorie_target ?? 0),
             caloriesLeft: Math.max(
@@ -556,6 +607,16 @@ export function OverviewClient() {
               </div>
             </div>
           ))}
+        </div>
+        <div className="border-t border-[var(--forge-border)] px-6 py-4">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+            <div className="forge-kicker text-[9px] text-[var(--forge-dim)]">
+              Apple Health bridge
+            </div>
+            <div className="text-sm text-[var(--forge-silver)]">
+              {state.appleHealthStatus}
+            </div>
+          </div>
         </div>
       </section>
 

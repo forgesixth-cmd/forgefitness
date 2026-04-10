@@ -40,6 +40,7 @@ function toInitials(name: string, email: string) {
 
 export function ProfileClient() {
   const [profile, setProfile] = useState<ProfileState | null>(null);
+  const [appleHealthStatus, setAppleHealthStatus] = useState<string>("Not connected");
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -105,6 +106,25 @@ export function ProfileClient() {
         strategySummary: data?.target_strategy_summary || "",
         initials: toInitials(displayName, user.email ?? "FF"),
       });
+
+      const { data: syncData, error: syncError } = await supabase
+        .from("apple_health_syncs")
+        .select("status, sync_completed_at, records_imported")
+        .eq("user_id", user.id)
+        .order("sync_started_at", { ascending: false })
+        .limit(1);
+
+      if (syncError && syncError.code !== "PGRST205") throw syncError;
+
+      const latestSync = syncData?.[0];
+      setAppleHealthStatus(
+        latestSync?.sync_completed_at
+          ? `Last sync: ${new Intl.DateTimeFormat("en-US", {
+              month: "short",
+              day: "numeric",
+            }).format(new Date(latestSync.sync_completed_at))} · ${latestSync.records_imported} records`
+          : latestSync?.status || "Not connected",
+      );
       setError(null);
     } catch (loadError) {
       setError(
@@ -440,6 +460,23 @@ export function ProfileClient() {
                 {profile.strategySummary}
               </p>
             ) : null}
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <p className="text-sm uppercase tracking-[0.18em] text-slate-500">
+              Apple Health bridge
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <p className="text-sm text-slate-300">
+                Status: <span className="font-semibold text-white">{appleHealthStatus}</span>
+              </p>
+              <p className="text-sm text-slate-300">
+                Source: <span className="font-semibold text-white">iPhone companion app</span>
+              </p>
+            </div>
+            <p className="mt-4 text-sm leading-7 text-slate-300">
+              ForgeFitness is now ready to store Apple Watch workouts, calories burned, steps, and sleep sessions. The remaining step is a small iPhone bridge that reads HealthKit and syncs into these tables.
+            </p>
           </div>
 
           {status ? (

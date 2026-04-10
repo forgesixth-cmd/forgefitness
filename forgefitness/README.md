@@ -33,7 +33,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 OPENAI_API_KEY=...
 ```
 
-4. In your Supabase project, run the SQL in [supabase/migrations/20260406_initial_schema.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_initial_schema.sql), [supabase/migrations/20260406_forge_tracking.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_forge_tracking.sql), [supabase/migrations/20260410_nutrition_meals.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_nutrition_meals.sql), and [supabase/migrations/20260410_profile_goal_targets.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_profile_goal_targets.sql) using the SQL editor.
+4. In your Supabase project, run the SQL in [supabase/migrations/20260406_initial_schema.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_initial_schema.sql), [supabase/migrations/20260406_forge_tracking.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_forge_tracking.sql), [supabase/migrations/20260410_nutrition_meals.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_nutrition_meals.sql), [supabase/migrations/20260410_profile_goal_targets.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_profile_goal_targets.sql), [supabase/migrations/20260410_estimated_body_fat.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_estimated_body_fat.sql), and [supabase/migrations/20260410_apple_health_bridge.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_apple_health_bridge.sql) using the SQL editor.
 
 5. Run the development server:
 
@@ -72,3 +72,5 @@ error if the public keys are missing.
 The private app shell currently uses a client-side auth gate. That keeps the
 flow simple for the first integration pass, and we can move to server-side
 session handling once we add SSR helpers and production auth hardening.
+
+Apple Watch syncing is not possible directly from a web page. The current repo is now ready to receive Apple Health data in Supabase, but the final bridge still needs a small iPhone app or native wrapper that reads HealthKit and writes the synced records.
