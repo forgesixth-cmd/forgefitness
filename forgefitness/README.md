@@ -33,7 +33,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 OPENAI_API_KEY=...
 ```
 
-4. In your Supabase project, run the SQL in [supabase/migrations/20260406_initial_schema.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_initial_schema.sql), [supabase/migrations/20260406_forge_tracking.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_forge_tracking.sql), and [supabase/migrations/20260410_nutrition_meals.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_nutrition_meals.sql) using the SQL editor.
+4. In your Supabase project, run the SQL in [supabase/migrations/20260406_initial_schema.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_initial_schema.sql), [supabase/migrations/20260406_forge_tracking.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260406_forge_tracking.sql), [supabase/migrations/20260410_nutrition_meals.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_nutrition_meals.sql), and [supabase/migrations/20260410_profile_goal_targets.sql](/Users/chintantejani/forgefitness/supabase/migrations/20260410_profile_goal_targets.sql) using the SQL editor.
 
 5. Run the development server:
 

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { BASE_PATH } from "@/lib/base-path";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase";
 
 type AuthMode = "sign-in" | "sign-up";
@@ -50,6 +51,10 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [fullName, setFullName] = useState("");
   const [goal, setGoal] = useState("");
   const [experience, setExperience] = useState("");
+  const [heightCm, setHeightCm] = useState("");
+  const [currentWeightKg, setCurrentWeightKg] = useState("");
+  const [targetWeightKg, setTargetWeightKg] = useState("");
+  const [targetDays, setTargetDays] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [status, setStatus] = useState<string | null>(null);
@@ -94,7 +99,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       const redirectTo =
         typeof window === "undefined"
           ? undefined
-          : `${window.location.origin}/auth/sign-in`;
+          : `${window.location.origin}${BASE_PATH}/auth/sign-in`;
 
       const { data, error: signUpError } = await supabase.auth.signUp({
         email,
@@ -105,6 +110,10 @@ export function AuthForm({ mode }: AuthFormProps) {
             display_name: fullName,
             primary_goal: goal,
             experience_level: experience,
+            height_cm: heightCm,
+            current_weight_kg: currentWeightKg,
+            target_weight_kg: targetWeightKg,
+            target_days: targetDays,
           },
         },
       });
@@ -114,6 +123,58 @@ export function AuthForm({ mode }: AuthFormProps) {
       }
 
       if (data.session) {
+        if (heightCm && currentWeightKg && targetWeightKg && targetDays) {
+          const userId = data.user?.id;
+
+          const recommendationResponse = await fetch(
+            `${BASE_PATH}/api/profile/recommendations`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                currentWeightKg: Number(currentWeightKg),
+                targetWeightKg: Number(targetWeightKg),
+                heightCm: Number(heightCm),
+                targetDays: Number(targetDays),
+                experienceLevel: experience,
+              }),
+            },
+          );
+
+          if (recommendationResponse.ok) {
+            const recommendation = (await recommendationResponse.json()) as {
+              summary: string;
+              daily_calories: number;
+              protein_grams: number;
+              carbs_grams: number;
+              fats_grams: number;
+              daily_calories_to_burn: number;
+            };
+
+            if (userId) {
+              await supabase.from("profiles").upsert({
+                id: userId,
+                display_name: fullName || null,
+                primary_goal: goal || null,
+                experience_level: experience || null,
+                height_cm: Number(heightCm),
+                current_weight_kg: Number(currentWeightKg),
+                target_weight_kg: Number(targetWeightKg),
+                target_days: Number(targetDays),
+                daily_calorie_target: recommendation.daily_calories,
+                daily_protein_grams: recommendation.protein_grams,
+                daily_carbs_grams: recommendation.carbs_grams,
+                daily_fats_grams: recommendation.fats_grams,
+                daily_calories_to_burn: recommendation.daily_calories_to_burn,
+                target_strategy_summary: recommendation.summary,
+                last_recommendation_at: new Date().toISOString(),
+              });
+            }
+          }
+        }
+
         setStatus("Account created. Redirecting to your dashboard.");
         router.replace("/dashboard");
         router.refresh();
@@ -167,6 +228,48 @@ export function AuthForm({ mode }: AuthFormProps) {
                 value={experience}
                 onChange={(event) => setExperience(event.target.value)}
                 placeholder="Experience level"
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input
+                className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                value={heightCm}
+                onChange={(event) => setHeightCm(event.target.value)}
+                placeholder="Current height (cm)"
+                type="number"
+                min="50"
+                required
+              />
+              <input
+                className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                value={currentWeightKg}
+                onChange={(event) => setCurrentWeightKg(event.target.value)}
+                placeholder="Current weight (kg)"
+                type="number"
+                min="20"
+                step="0.1"
+                required
+              />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <input
+                className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                value={targetWeightKg}
+                onChange={(event) => setTargetWeightKg(event.target.value)}
+                placeholder="Target weight (kg)"
+                type="number"
+                min="20"
+                step="0.1"
+                required
+              />
+              <input
+                className="rounded-2xl border border-slate-200 px-4 py-3 text-sm outline-none transition focus:border-slate-400"
+                value={targetDays}
+                onChange={(event) => setTargetDays(event.target.value)}
+                placeholder="Target days"
+                type="number"
+                min="7"
+                required
               />
             </div>
           </>
